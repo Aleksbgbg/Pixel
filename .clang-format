@@ -1,0 +1,5 @@
+Language: Cpp
+BasedOnStyle: Google
+AllowShortFunctionsOnASingleLine: Empty
+DerivePointerAlignment: false
+PointerAlignment: Left
