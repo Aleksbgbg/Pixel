@@ -2,11 +2,15 @@
 
 #include <SDL.h>
 
+#include <chrono>
 #include <cstring>
 #include <vector>
 
 #include "core/types.h"
 #include "render.h"
+
+using default_clock = std::chrono::high_resolution_clock;
+using time_point = std::chrono::time_point<default_clock>;
 
 namespace {
 
@@ -17,6 +21,14 @@ constexpr u32 kPixelFormat = SDL_PIXELFORMAT_RGB24;
 constexpr u32 kChannelsPerPixel = 3;  // RGB
 
 constexpr u32 kTextureSizeBytes = kWidth * kHeight * kChannelsPerPixel;
+
+constexpr u32 kFps = 60;
+
+float CalculateDeltaTimeSeconds(const time_point a, const time_point b) {
+  return std::abs(
+      std::chrono::duration<float, std::chrono::seconds::period>(a - b)
+          .count());
+}
 
 }  // namespace
 
@@ -35,8 +47,9 @@ ExitCode Run() {
     return ExitCode::kGenericError;
   }
 
-  SDL_Renderer* const renderer = SDL_CreateRenderer(
-      window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  SDL_Renderer* const renderer =
+      SDL_CreateRenderer(window, /* index= */ -1,
+                         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   if (renderer == nullptr) {
     SDL_Log("Unable to create renderer: %s", SDL_GetError());
@@ -48,7 +61,7 @@ ExitCode Run() {
     return ExitCode::kGenericError;
   }
 
-  SDL_Texture* texture = SDL_CreateTexture(
+  SDL_Texture* const texture = SDL_CreateTexture(
       renderer, kPixelFormat, SDL_TEXTUREACCESS_STREAMING, kWidth, kHeight);
 
   if (texture == nullptr) {
@@ -57,6 +70,8 @@ ExitCode Run() {
   }
 
   std::vector<u8> pixels(kTextureSizeBytes);
+
+  time_point lastTime = default_clock::now();
 
   while (true) {
     SDL_Event event;
@@ -69,7 +84,13 @@ ExitCode Run() {
     }
 
     std::memset(pixels.data(), 0, kTextureSizeBytes);
-    Render(pixels.data());
+
+    const time_point now = default_clock::now();
+
+    Render({.deltaTime = CalculateDeltaTimeSeconds(now, lastTime)},
+           pixels.data());
+
+    lastTime = now;
 
     int texture_pitch = 0;
     void* texture_pixels = nullptr;
@@ -86,5 +107,7 @@ ExitCode Run() {
       SDL_Log("Unable to copy texture to render target: %s", SDL_GetError());
     }
     SDL_RenderPresent(renderer);
+
+    SDL_Delay(1000 / kFps);
   }
 }

@@ -1,4 +1,4 @@
-set(SOURCE_FILES core/types.h run.cc run.h render.cc render.h)
+set(SOURCE_FILES core/types.h run.cc run.h render.cc render.h UpdateContext.h)
 
 if(LINUX)
   set(LINUX_SOURCE_FILES platform/linux/linux_main.cc)
@@ -12,7 +12,7 @@ elseif(WINDOWS)
 
   list(APPEND SOURCE_FILES ${WINDOWS_SOURCE_FILES})
 
-  add_executable(${BINARY_NAME} WIN32 ${SOURCE_FILES})
+  add_executable(${BINARY_NAME} ${SOURCE_FILES})
   target_link_libraries(${BINARY_NAME} PRIVATE SDL2::SDL2-static)
 elseif(MACOS)
   set(MACOS_SOURCE_FILES platform/macos/macos_main.cc)
