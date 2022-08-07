@@ -1,4 +1,4 @@
-set(SOURCE_FILES core/types.h run.cc run.h render.cc render.h update_context.h input/keyboard.h input/mouse.h input/sdl_keyboard.cc input/sdl_keyboard.h input/sdl_mouse.cc input/sdl_mouse.h)
+set(SOURCE_FILES core/types.h run.cc run.h render.cc render.h update_context.h input/keyboard.h input/mouse.h input/sdl_keyboard.cc input/sdl_keyboard.h input/sdl_mouse.cc input/sdl_mouse.h core/math/random.cc core/math/random.h)
 
 if(LINUX)
   set(LINUX_SOURCE_FILES platform/linux/linux_main.cc)
