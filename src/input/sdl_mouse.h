@@ -9,13 +9,16 @@
 
 class SdlMouse : public Mouse {
  public:
-  bool IsButtonDown(MouseButton button) const override;
+  bool ButtonDown(MouseButton button) const override;
+  bool ButtonJustReleased(MouseButton button) const override;
   vec2i GetPosition() const override;
 
+  void ClearReleasedButtons();
   void ProcessEvent(const SDL_Event& event);
 
  private:
   std::unordered_set<MouseButton> mouse_buttons_down_;
+  std::unordered_set<MouseButton> mouse_buttons_just_released_;
   vec2i mouse_position_;
 };
 

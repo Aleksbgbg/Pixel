@@ -80,6 +80,7 @@ ExitCode Run() {
 
   while (true) {
     keyboard.ClearReleasedKeys();
+    mouse.ClearReleasedButtons();
 
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {

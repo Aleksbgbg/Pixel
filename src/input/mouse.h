@@ -12,7 +12,8 @@ class Mouse {
  public:
   virtual ~Mouse() = default;
 
-  virtual bool IsButtonDown(MouseButton button) const = 0;
+  virtual bool ButtonDown(MouseButton button) const = 0;
+  virtual bool ButtonJustReleased(MouseButton button) const = 0;
   virtual vec2i GetPosition() const = 0;
 };
 
