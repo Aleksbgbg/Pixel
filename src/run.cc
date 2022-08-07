@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "core/types.h"
+#include "input/sdl_keyboard.h"
+#include "input/sdl_mouse.h"
 #include "render.h"
 
 using default_clock = std::chrono::high_resolution_clock;
@@ -40,7 +42,7 @@ ExitCode Run() {
 
   SDL_Window* const window =
       SDL_CreateWindow("Pixel", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       kWidth, kHeight, SDL_WINDOW_RESIZABLE);
+                       kWidth, kHeight, /* flags= */ 0);
 
   if (window == nullptr) {
     SDL_Log("Unable to create window: %s", SDL_GetError());
@@ -69,15 +71,30 @@ ExitCode Run() {
     return ExitCode::kGenericError;
   }
 
+  SdlKeyboard keyboard;
+  SdlMouse mouse;
+
   std::vector<u8> pixels(kTextureSizeBytes);
 
-  time_point lastTime = default_clock::now();
+  time_point last_time = default_clock::now();
 
   while (true) {
-    SDL_Event event;
+    keyboard.ClearReleasedKeys();
 
+    SDL_Event event;
     while (SDL_PollEvent(&event) != 0) {
       switch (event.type) {
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+          keyboard.ProcessEvent(event);
+          break;
+
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+          mouse.ProcessEvent(event);
+          break;
+
         case SDL_QUIT:
           return ExitCode::kOk;
       }
@@ -86,11 +103,11 @@ ExitCode Run() {
     std::memset(pixels.data(), 0, kTextureSizeBytes);
 
     const time_point now = default_clock::now();
-
-    Render({.deltaTime = CalculateDeltaTimeSeconds(now, lastTime)},
+    Render({.delta_time = CalculateDeltaTimeSeconds(now, last_time),
+            .keyboard = keyboard,
+            .mouse = mouse},
            pixels.data());
-
-    lastTime = now;
+    last_time = now;
 
     int texture_pitch = 0;
     void* texture_pixels = nullptr;

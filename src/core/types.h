@@ -15,4 +15,17 @@ using u64 = uint64_t;
 using f32 = float;
 using f64 = double;
 
+template <typename T>
+struct vec2 {
+  vec2() : x(static_cast<T>(0)), y(static_cast<T>(0)) {}
+  vec2(const T x, const T y) : x(x), y(y) {}
+
+  T x;
+  T y;
+};
+
+using vec2f = vec2<float>;
+using vec2i = vec2<i32>;
+using vec2u = vec2<u32>;
+
 #endif  // SRC_CORE_TYPES_H_
